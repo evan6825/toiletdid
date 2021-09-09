@@ -48,9 +48,11 @@ async def create_prover_wallet(): #여기에는 데이터 값이 들어가는곳
     prover['link_secret_id'] = await anoncreds.prover_create_master_secret(prover['wallet'],
                                                                         prover['link_secret'])
     
+    prover['cred_def_id'] = schema['cred_def_id']
+    prover['cred_def'] = schema['cred_def']
 
     prover['cred_offer'] = await anoncreds.issuer_create_credential_offer(issuer['wallet'],
-                                                                         schema['cred_def_id']) # cred_def_id > schema 에서 cred_def_id
+                                                                         prover['cred_def_id']) # cred_def_id > schema 에서 cred_def_id
    
     
     #prover['cred_def'] = await ledger.build_get_cred_def_request(issuer['did'],schema['cred_def_id'])
@@ -60,7 +62,7 @@ async def create_prover_wallet(): #여기에는 데이터 값이 들어가는곳
         await anoncreds.prover_create_credential_req(prover['wallet'],
                                                      prover['did'],
                                                      prover['cred_offer'],
-                                                     schema['cred_def'],
+                                                     prover['cred_def'],
                                                      prover['link_secret'])
     prover['cred_values'] = prover_information
 
@@ -73,8 +75,8 @@ async def create_prover_wallet(): #여기에는 데이터 값이 들어가는곳
     await anoncreds.prover_store_credential(prover['wallet'], None,
                                             prover['cred_req_metadata'],
                                             prover['cred'],
-                                            schema['cred_def'], None)
-
+                                            prover['cred_def'], None)
+    return prover
 
 def main():
     loop = asyncio.get_event_loop()
