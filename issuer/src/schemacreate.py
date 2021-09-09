@@ -7,7 +7,7 @@ from indy.error import IndyError, ErrorCode
 
 from utils import get_pool_genesis_txn_path, PROTOCOL_VERSION
 from walletcreate import write_nym_and_query_verkey
-from did import sdk,issuer
+from samples import sdk,issuer
 
 # issuer = sdk
 schema = {
@@ -30,8 +30,6 @@ async def schema_build_and_request():
         'type': 'CL',
         'config': json.dumps({"support_revocation": False})
     }
-    issuer['cred_def_id'], issuer['cred_def'] = await anoncreds.issuer_create_and_store_credential_def(
-    issuer['wallet'], issuer['did'], issuer['schema'], cred_def['tag'], cred_def['type'], cred_def['config'])
     
     issuer['schema_req'] = await ledger.build_schema_request(issuer['did'],issuer['schema'])
     issuer['schema_res'] = \
@@ -48,11 +46,15 @@ async def schema_build_and_request():
         await anoncreds.issuer_create_and_store_credential_def(issuer['wallet'],
                                                                 issuer['did'], #여기부분을 steward_did로 수정
                                                                 issuer['schema'],
-                                                                issuer['cred_def_tag'],
-                                                                issuer['cred_def_type'],
-                                                                issuer['cred_def_config'])
+                                                                cred_def['tag'],
+                                                                cred_def['type'],
+                                                                cred_def['config'])
     print(issuer)
-    return issuer
+    await wallet.close_wallet(issuer['wallet'])
+    await pool.close_pool_ledger(issuer['pool']) 
+    print("cred_def_id")
+    print(issuer['cred_def'])
+
 
 def main():
     loop = asyncio.get_event_loop()
