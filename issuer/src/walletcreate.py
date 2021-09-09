@@ -14,68 +14,78 @@ def print_log(value_color="", value_noncolor=""):
     print(HEADER + value_color + ENDC + str(value_noncolor))
 
 """
-issuer_did : SDK server did
-toilet_did : Endpoint server did
+sdk_did : DID채널을 운영하는 DID
+issuer_did : Endpoint server did
 """
 async def write_nym_and_query_verkey():
         await pool.set_protocol_version(PROTOCOL_VERSION)
-        toilet = {
-        'seed': '0000000000000000000000000toilet1',
-        'wallet_config': json.dumps({'id': 'toilet_wallet'}),
-        'wallet_credentials': json.dumps({'key': 'toilet_wallet_key'}),
+        sdk = {
+        'seed': '0000000000000000000000000000sdk1', #seed번호는 33자리 고정으로 되는지 확인
+        'wallet_config': json.dumps({'id': 'sdk_wallet'}),
+        'wallet_credentials': json.dumps({'key': 'sdk_wallet_key'}),
         'pool_name': 'toilet_pool'
         }
 
-        user = {
-        'seed': '0000000000000000000000000toilet2',
-        'wallet_config': json.dumps({'id': 'user_wallet'}),
-        'wallet_credentials': json.dumps({'key': 'user_wallet_key'})
+        issuer = {
+        'seed': '0000000000000000000000000issuer2',
+        'wallet_config': json.dumps({'id': 'sdk_wallet'}),
+        'wallet_credentials': json.dumps({'key': 'sdk_wallet_key'})
         }
 
         # 1. Create_pool_ledger and open_pool_ledger
-        toilet['genesis_txn_path'] = get_pool_genesis_txn_path(toilet['pool_name'])
-        toilet['pool_config'] = json.dumps({"genesis_txn": str(toilet['genesis_txn_path'])})
+        sdk['genesis_txn_path'] = get_pool_genesis_txn_path(sdk['pool_name'])
+        sdk['pool_config'] = json.dumps({"genesis_txn": str(sdk['genesis_txn_path'])})
         try:
-            await pool.create_pool_ledger_config(toilet['pool_name'], toilet['pool_config'])
+            await pool.create_pool_ledger_config(sdk['pool_name'], sdk['pool_config'])
         except IndyError as ex:
             if ex.error_code == ErrorCode.PoolLedgerConfigAlreadyExistsError:
                 pass
+        sdk['pool'] = await pool.open_pool_ledger(sdk['pool_name'], None)
+
+        # 2. Create SDK_server wallet and did
+        await wallet.create_wallet(sdk['wallet_config'], sdk['wallet_credentials'])
+        sdk['wallet'] = await wallet.open_wallet(sdk['wallet_config'], sdk['wallet_credentials'])
+        (sdk['did'], sdk['verkey']) = \
+        await did.create_and_store_my_did(sdk['wallet'], json.dumps({"seed": sdk['seed']}))   #여기문제 
 
 
-        toilet['pool'] = await pool.open_pool_ledger(toilet['pool_name'], None)
+        # Create Endpoint_did
+        # await wallet.create_wallet(issuer['wallet_config'], issuer['wallet_credentials'])
+        # issuer['wallet'] = await wallet.open_wallet(issuer['wallet_config'], issuer['wallet_credentials'])
+        (issuer['did'], issuer['verkey']) = await did.create_and_store_my_did(sdk['wallet'], json.dumps({"seed": issuer['seed']}))
 
-        # 2. Create SDK_server = 
-        await wallet.create_wallet(toilet['wallet_config'], toilet['wallet_credentials'])
-        toilet['wallet'] = await wallet.open_wallet(toilet['wallet_config'], toilet['wallet_credentials'])
+
+        # sdk 변수(variable)에 Endpoint_wallet and did 저장
+        sdk['issuer_did'] = issuer['did']
+        sdk['issuer_verkey'] = issuer['verkey']
+
+        # ENDPOINT(issuer)의 NYM트랜잭션을 준비및 발송 
+        nym_req = await ledger.build_nym_request(sdk['did'], sdk['issuer_did'], sdk['issuer_verkey'], None, None)
+        await ledger.sign_and_submit_request(sdk['pool'], sdk['wallet'], sdk['did'], nym_req)
+
+        # 저희는 직접 ENDPOINT(issuer)를 관리하기 때문에 rotatekey를 사용하지 않음
         
-        # 3. Create Trustee DID
-        (toilet['did'], toilet['verkey']) = \
-        await did.create_and_store_my_did(toilet['wallet'], json.dumps({"seed": toilet['seed']}))   
+
+        #7번의 기능의 확실한 목적은? ENDPOINT에게 INDY_POOL에 접속할 아이피와 포트번호를 전달해주는 API?
+        # # 7. issuer send ATTRIB transaction to Ledger
+        # attr_req = \
+        #     await ledger.build_attrib_request(issuer['did'], issuer['did'], None, '{"endpoint":{"ha":"127.0.0.1:5555"}}', None)
+        # resp = await ledger.sign_and_submit_request(issuer['pool'], issuer['wallet'], issuer['did'], attr_req)
+
+        # assert json.loads(resp)['op'] == 'REPLY'
 
 
-        # Create Endpoint_wallet and Endpoint_did
-        await wallet.create_wallet(user['wallet_config'], user['wallet_credentials'])
-        user['wallet'] = await wallet.open_wallet(user['wallet_config'], user['wallet_credentials'])
-        (user['did'], user['verkey']) = await did.create_and_store_my_did(user['wallet'], json.dumps({"seed": user['seed']}))
-
-
-        # toilet 변수(variable)에 Endpoint_wallet and did 저장
-        toilet['toilet_did'] = user['did']
-        toilet['toilet_verkey'] = user['verkey']
-        nym_req = await ledger.build_nym_request(toilet['did'], toilet['toilet_did'], toilet['toilet_verkey'], None, None)
-        await ledger.sign_and_submit_request(toilet['pool'], toilet['wallet'], toilet['did'], nym_req)
-        await wallet.close_wallet(toilet['wallet'])
-        await pool.close_pool_ledger(toilet['pool'])    
+        # wallet and pool close
+        await wallet.close_wallet(sdk['wallet'])
+        await pool.close_pool_ledger(sdk['pool'])    
+        print("sdk_did :")
+        print(sdk["did"])
         print("issuer_did :")
-        print(toilet["did"])
-        print("issuer_verkey : ")
-        print(toilet["verkey"])
-        print("toilet_did :")
-        print(toilet["toilet_did"])
-        print("toilet_verkey : ")
-        print(toilet["toilet_verkey"])
+        print(sdk["issuer_did"])
         
-        return toilet
+        return sdk
+
+
 
 def main():
     loop = asyncio.get_event_loop()
