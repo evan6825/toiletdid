@@ -10,14 +10,6 @@ from samples.prover import prover_information
 from utils import get_pool_genesis_txn_path, PROTOCOL_VERSION
 
 
-def print_log(value_color="", value_noncolor=""):
-    """set the colors for text."""
-    HEADER = '\033[92m'
-    ENDC = '\033[0m'
-    print(HEADER + value_color + ENDC + str(value_noncolor))
-
-
-
 
 async def create_prover_wallet(): #여기에는 데이터 값이 들어가는곳 22줄
     await pool.set_protocol_version(PROTOCOL_VERSION)
