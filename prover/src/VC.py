@@ -38,14 +38,14 @@ async def VC(): #여기에는 데이터 값이 들어가는곳 22줄
     prover['link_secret_id'] = await anoncreds.prover_create_master_secret(prover['wallet'],
                                                                         prover['link_secret'])
     
-    prover['cred_def_id'] = schema['cred_def_id']
-    prover['cred_def'] = schema['cred_def']
+
 
     prover['cred_offer'] = await anoncreds.issuer_create_credential_offer(issuer['wallet'],
-                                                                         prover['cred_def_id']) # cred_def_id > schema 에서 cred_def_id
+                                                                         schema['cred_def_id']) # cred_def_id > schema 에서 cred_def_id
    
 
-
+    prover['cred_def_id'] = json.dumps(schema['cred_def_id'])
+    prover['cred_def'] = json.dumps(schema['cred_def'])
 
     (prover['cred_req'], prover['cred_req_metadata']) = \
         await anoncreds.prover_create_credential_req(prover['wallet'],

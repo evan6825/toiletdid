@@ -41,7 +41,7 @@ async def VP():
 
     prover['cred_def'] = await ledger.submit_request(sdk['pool'],prover['get_cred_def_request'])
 
-    prover['get_revoc_reg_def_req']
+    prover['get_revoc_reg_def_req'] = await ledger.build_get_revoc_reg_def_request(sdk['did'],)
 
 def main():
     loop = asyncio.get_event_loop()
