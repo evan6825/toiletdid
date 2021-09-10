@@ -12,7 +12,7 @@ sdk = {
     }
 
 
-# issuer = End_Point(toilet_server)
+# issuer = End_Point(toilet_app_server)
 issuer = {
         'did': 'EYYre24MSmo3tQwC9S1YWr',
         'wallet_config': json.dumps({'id': 'sdk_wallet'}),
@@ -21,6 +21,15 @@ issuer = {
     }
 
 prover = {
+        'seed': '0000000000000000000000000prover2',
+        'did' : 'GDJNoToAxu95mWvwgk2K2E',
         'wallet_config': json.dumps({'id': 'prover_wallet'}), #prover에 회원의 아이디가 들어간다.
         'wallet_credentials': json.dumps({'key': 'prover_wallet_key'}),
+        'pool_name': 'toilet_pool',
+        'master_secret_id' : 'Jun'
+
+}
+
+verifier ={
+
 }

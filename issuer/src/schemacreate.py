@@ -53,7 +53,7 @@ async def schema_build_and_request():
     await wallet.close_wallet(issuer['wallet'])
     await pool.close_pool_ledger(issuer['pool']) 
     print("cred_def_id")
-    print(issuer['cred_def'])
+    print(issuer['schema'])
 
 
 def main():

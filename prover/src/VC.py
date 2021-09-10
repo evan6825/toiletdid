@@ -11,13 +11,8 @@ from utils import get_pool_genesis_txn_path, PROTOCOL_VERSION
 
 
 
-async def create_prover_wallet(): #여기에는 데이터 값이 들어가는곳 22줄
+async def VC(): #여기에는 데이터 값이 들어가는곳 22줄
     await pool.set_protocol_version(PROTOCOL_VERSION)
-    prover = {
-        'wallet_config': json.dumps({'id': 'prover_wallet'}), #prover에 회원의 아이디가 들어간다.
-        'wallet_credentials': json.dumps({'key': 'prover_wallet_key'}),
-        'pool_name': 'toilet_pool'
-    }
     prover['pool'] = await pool.open_pool_ledger(prover['pool_name'], None)
     #prover의 지갑 생성
     try:
@@ -33,7 +28,10 @@ async def create_prover_wallet(): #여기에는 데이터 값이 들어가는곳
     prover['wallet'] = await wallet.open_wallet(prover['wallet_config'], prover['wallet_credentials'])
 
     #prover의 did생성
-    (prover['did'],prover['verkey']) = await did.create_and_store_my_did(prover['wallet'],"{}")
+    (prover['did'],prover['verkey']) = await did.create_and_store_my_did(prover['wallet'],json.dumps({"seed": prover['seed']}))
+
+    #서버연결시 사용
+    #(prover['did'],prover['verkey']) = await did.create_and_store_my_did(prover['wallet'],"{}")
 
     # link_secret
     prover['link_secret'] = 'Jun' #prover의 did는 생성하지않는다 master_secret을 통해 생성한다.
@@ -46,8 +44,7 @@ async def create_prover_wallet(): #여기에는 데이터 값이 들어가는곳
     prover['cred_offer'] = await anoncreds.issuer_create_credential_offer(issuer['wallet'],
                                                                          prover['cred_def_id']) # cred_def_id > schema 에서 cred_def_id
    
-    
-    #prover['cred_def'] = await ledger.build_get_cred_def_request(issuer['did'],schema['cred_def_id'])
+
 
 
     (prover['cred_req'], prover['cred_req_metadata']) = \
@@ -68,11 +65,12 @@ async def create_prover_wallet(): #여기에는 데이터 값이 들어가는곳
                                             prover['cred_req_metadata'],
                                             prover['cred'],
                                             prover['cred_def'], None)
+    print(prover["did"])
     return prover
 
 def main():
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(create_prover_wallet())
+    loop.run_until_complete(VC())
     loop.close()
 
 
