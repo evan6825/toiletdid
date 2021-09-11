@@ -24,7 +24,7 @@ prover = {
         'seed': '0000000000000000000000000prover2',
         'did' : 'GDJNoToAxu95mWvwgk2K2E',
         'wallet_config': json.dumps({'id': 'prover_wallet'}), #prover에 회원의 아이디가 들어간다.
-        'wallet_credentials': json.dumps({'key': 'prover_wallet_key'}),
+        'wallet_credentials': json.dumps({'key': 'prover1_wallet_key'}),
         'pool_name': 'toilet_pool',
         'master_secret_id' : 'Jun'
 

@@ -5,7 +5,7 @@ import pprint
 from indy import pool, ledger, wallet, did, anoncreds
 from indy.error import IndyError, ErrorCode
 from samples.did import sdk,issuer,prover
-from samples.schema import schema
+from samples.schema import schema, proof_schema
 from utils import get_pool_genesis_txn_path, PROTOCOL_VERSION
 
 
@@ -18,7 +18,7 @@ async def VP():
 
     nonce = await anoncreds.generate_nonce()
     sdk['proof_req'] = json.dumps({
-        'nonce': nonce,
+        'nonce': "12312",
         'name': 'proof_req_1',
         'version': '0.1',
         'requested_attributes': {
@@ -33,15 +33,47 @@ async def VP():
     prover["search_handle"] = \
         await anoncreds.prover_search_credentials_for_proof_req(prover['wallet'],prover["proof_req"],None)
 
-    prover['get_schema_request'] = await ledger.build_get_schema_request(sdk['did'],schema['schema_id'])
+    creds_for_attr1 = await anoncreds.prover_fetch_credentials_for_proof_req(prover['search_handle'],
+                                                                             'attr1_referent', 10)
+    prover['cred_for_attr1']= json.loads(creds_for_attr1)[0]['cred_info']
 
-    prover['schema'] = await ledger.submit_request(sdk['pool'],prover['get_schema_request'])
+    creds_for_predicate1 = await anoncreds.prover_fetch_credentials_for_proof_req(prover['search_handle'],
+                                                                                  'predicate1_referent', 10)
+    prover['cred_for_predicate1'] = json.loads(creds_for_predicate1)[0]['cred_info']
 
-    prover['get_cred_def_req'] = await ledger.build_get_cred_def_request(sdk['did'],schema['cred_def_id'])
+    await anoncreds.prover_close_credentials_search_for_proof_req(prover['search_handle'])
 
-    prover['cred_def'] = await ledger.submit_request(sdk['pool'],prover['get_cred_def_request'])
 
-    prover['get_revoc_reg_def_req'] = await ledger.build_get_revoc_reg_def_request(sdk['did'],)
+    prover['requested_creds'] = json.dumps({
+        'self_attested_attributes': {},
+        'requested_attributes': {'attr1_referent': {'cred_id': prover['cred_for_attr1']['referent'], 'revealed': True}},
+        'requested_predicates': {'predicate1_referent': {'cred_id': prover['cred_for_predicate1']['referent']}}
+    })
+
+
+
+    schemas_json = json.dumps({proof_schema['schema_id']: json.loads(proof_schema['schema'])})
+    cred_defs_json = json.dumps({proof_schema['cred_def_id']: json.loads(proof_schema['cred_def'])})
+    revoc_states_json = json.dumps({})
+
+
+    prover['proof'] = await anoncreds.prover_create_proof(prover['wallet'], prover['proof_req'],
+                                                          prover['requested_creds'],
+                                                          prover['master_secret_id'], schemas_json, cred_defs_json,
+                                                          revoc_states_json)
+
+    proof = prover['proof']
+
+    schemas_json = json.dumps({schema['schema_id']: json.loads(schema['schema'])})
+    cred_defs_json = json.dumps({proof_schema['cred_def_id']: json.loads(proof_schema['cred_def'])}) 
+    revoc_ref_defs_json = "{}"
+    revoc_regs_json = "{}"
+
+    assert await anoncreds.verifier_verify_proof(sdk['proof_req'], proof, schemas_json, cred_defs_json,
+                                                revoc_ref_defs_json, revoc_regs_json)
+
+    print(proof)
+    return proof
 
 def main():
     loop = asyncio.get_event_loop()
