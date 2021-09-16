@@ -4,12 +4,28 @@ import pprint
 
 from indy import pool, ledger, wallet, did, anoncreds
 from indy.error import IndyError, ErrorCode
-from samples.did import sdk,issuer,prover
+from samples.did import sdk,issuer
 from samples.schema import schema, proof_schema
 from utils import get_pool_genesis_txn_path, PROTOCOL_VERSION
 
+# params = {
+#     "id" : "evan6825@naver.com",
+#     "gender" : "male",
+#     "name": "JunHong",
+#     "HP": "01022126825",
+#     "did": "8rbgRNr7u6VuE6cv92zHrx"
+#     }
 
-async def VP():
+
+
+async def VP1(params):
+    prover = {
+        "wallet_config" :  json.dumps({"id": params["id"]}),
+        "wallet_credentials" : json.dumps({"key": params["id"]+'_key'}),
+        "link_secret" : params["id"]
+    }
+
+
     await pool.set_protocol_version(PROTOCOL_VERSION)
     sdk['pool'] = await pool.open_pool_ledger(sdk['pool_name'], None)
     sdk['wallet'] = await wallet.open_wallet(sdk['wallet_config'], sdk['wallet_credentials'])
@@ -59,7 +75,7 @@ async def VP():
 
     prover['proof'] = await anoncreds.prover_create_proof(prover['wallet'], prover['proof_req'],
                                                           prover['requested_creds'],
-                                                          prover['master_secret_id'], schemas_json, cred_defs_json,
+                                                          prover['link_secret'], schemas_json, cred_defs_json,
                                                           revoc_states_json)
 
     proof = prover['proof']
@@ -77,7 +93,7 @@ async def VP():
 
 def main():
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(VP())
+    loop.run_until_complete(VP1())
     loop.close()
 
 
