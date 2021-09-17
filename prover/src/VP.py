@@ -8,13 +8,6 @@ from samples.did import sdk,issuer
 from samples.schema import schema, proof_schema
 from utils import get_pool_genesis_txn_path, PROTOCOL_VERSION
 
-# params = {
-#     "id" : "evan6825@naver.com",
-#     "gender" : "male",
-#     "name": "JunHong",
-#     "HP": "01022126825",
-#     "did": "8rbgRNr7u6VuE6cv92zHrx"
-#     }
 
 
 
@@ -22,7 +15,8 @@ async def VP1(params):
     prover = {
         "wallet_config" :  json.dumps({"id": params["id"]}),
         "wallet_credentials" : json.dumps({"key": params["id"]+'_key'}),
-        "link_secret" : params["id"]
+        "link_secret" : params["id"],
+        "did" : params["did"]
     }
 
 
@@ -88,8 +82,10 @@ async def VP1(params):
     assert await anoncreds.verifier_verify_proof(sdk['proof_req'], proof, schemas_json, cred_defs_json,
                                                 revoc_ref_defs_json, revoc_regs_json)
 
-    print(proof)
-    return proof
+
+
+    return True
+
 
 def main():
     loop = asyncio.get_event_loop()

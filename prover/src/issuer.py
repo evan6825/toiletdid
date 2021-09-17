@@ -1,15 +1,7 @@
-import asyncio
-import json
-import pprint
-
-
-from indy import pool,ledger,wallet,did,anoncreds
-from indy.error import IndyError, ErrorCode
-
 
 import VC as VC1
 import VP as VP1
-
+import verify as verify1
 
 
 from flask import Flask, request
@@ -23,7 +15,7 @@ def main():
    return "<h1>Hello world!</h1>"
 
 
-@app.route('/VC')
+@app.route('/VC', methods = ["POST"])
 async def user_VC():
    print("test1")
    if request.is_json :
@@ -32,7 +24,7 @@ async def user_VC():
    return a
 
 
-@app.route('/VP')
+@app.route('/VP', methods = ["POST"])
 async def user_VP():
    if request.is_json:
     params = request.get_json()
@@ -40,11 +32,18 @@ async def user_VP():
    return a
 
 
+@app.route('/verify1', methods = ["POST"])
+async def verify_male():
+   if request.is_json:
+    params = request.get_json()
+   a = await verify1.verify(params)
+   return a
+
 
 
 
 host_addr = "127.0.0.1"
-port_num = "8080"
+port_num = "5000"
 
 if __name__ == "__main__":
    app.run(host=host_addr,port=port_num)

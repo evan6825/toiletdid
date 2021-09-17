@@ -13,7 +13,7 @@ from samples import sdk,issuer
 schema = {
         'name': 'toilet',
         'version': '1.0',
-        'attributes': '["gender", "Phone", "name"]'
+        'attributes': '["gender", "phone", "name"]'
 }
 async def schema_build_and_request():
     # issuer = await write_nym_and_query_verkey()
@@ -49,10 +49,11 @@ async def schema_build_and_request():
                                                                 cred_def['tag'],
                                                                 cred_def['type'],
                                                                 cred_def['config'])
-    print(issuer)
     await wallet.close_wallet(issuer['wallet'])
-    await pool.close_pool_ledger(issuer['pool']) 
-    print("cred_def_id")
+    await pool.close_pool_ledger(issuer['pool'])
+    print("schema")
+    print(issuer["schema"])
+    print("cred_def")
     print(issuer['cred_def'])
 
 

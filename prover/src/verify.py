@@ -4,19 +4,16 @@ import pprint
 
 from indy import pool, ledger, wallet, did, anoncreds
 from indy.error import IndyError, ErrorCode
-from samples.did import sdk,issuer,prover
+from samples.did import sdk,issuer
 from samples.schema import schema, proof_schema
-from samples.Vp import vp
 from utils import get_pool_genesis_txn_path, PROTOCOL_VERSION
+from samples.verfiy import params
 
 
 async def verify():
 
-
-
-
     nonce = await anoncreds.generate_nonce()
-
+    print("test1")
     proof= json.dumps({
         'nonce': nonce,
         'name': 'proof_req_1',
@@ -25,7 +22,7 @@ async def verify():
             'attr1_referent': {'name': 'name'}
         },
         'requested_predicates': {
-            'predicate1_referent': {'name': 'age', 'p_type': '>=', 'p_value': 18}
+            'predicate1_referent': {'name': 'gender', 'p_type': '>=', 'p_value': 100}
         }
     })
 
@@ -33,8 +30,8 @@ async def verify():
     cred_defs_json = json.dumps({proof_schema['cred_def_id']: json.loads(proof_schema['cred_def'])}) 
     revoc_ref_defs_json = "{}"
     revoc_regs_json = "{}"
-
-    assert await anoncreds.verifier_verify_proof(proof, vp, schemas_json, cred_defs_json,
+    print("test2")
+    assert await anoncreds.verifier_verify_proof(proof, params, schemas_json, cred_defs_json,
                                                 revoc_ref_defs_json, revoc_regs_json)
 
     print("true")

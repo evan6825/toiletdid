@@ -36,7 +36,6 @@ async def VC1(params): #여기에는 데이터 값이 들어가는곳 22줄
     except IndyError as err:
         if err.error_code == ErrorCode.WalletAlreadyExistsError:
             print("지갑이 이미 생성 되어있습니다.")
-            pass 
     
     
     #prover의 지갑 접근
@@ -71,27 +70,32 @@ async def VC1(params): #여기에는 데이터 값이 들어가는곳 22줄
                                                      prover['link_secret'])
 
 
-    if prover1["gender"] == "male":
-        prover1["gender_code"] = "101"
-    elif prover1["gender"] == "female":
-        prover1["gender_code"] = "99"
+    # mystring = prover1["name"]
+    # mybytes = mystring.encode('utf-8')
+    # myint = int.from_bytes(mybytes, 'little')
+
+
+    if params["gender"] == "male":
+        params["gender_code"] = "101"
+    elif params["gender"] == "female":
+        params["gender_code"] = "99"
 
 
     # prover1["name_code"] = base64.b64encode(json.dump([prover1["name"]]))
 
 
     prover_information = json.dumps({
-        "gender": {"raw": prover1["gender"], "encoded": prover1["gender_code"]},
-        "Phone": {"raw": prover1["HP"], "encoded": prover1["HP"]},
-        "name": {"raw": prover1["name"], "encoded": "123123123123"}
+        "gender": {"raw": params["gender"], "encoded": params["gender_code"]},
+        "name" : {"raw": params["name"], "encoded":"123123123123"},
+        "phone": {"raw": params["phone"], "encoded": params["phone"]}
     })
     prover['cred_values'] = prover_information
 
     (prover['cred'], _, _) = \
         await anoncreds.issuer_create_credential(issuer['wallet'],
-                                                     prover['cred_offer'],
-                                                     prover['cred_req'],
-                                                     prover['cred_values'], None, None)
+                                                 prover['cred_offer'],
+                                                 prover['cred_req'],
+                                                 prover['cred_values'], None, None)
     
     await anoncreds.prover_store_credential(prover['wallet'], None,
                                             prover['cred_req_metadata'],
@@ -99,7 +103,7 @@ async def VC1(params): #여기에는 데이터 값이 들어가는곳 22줄
                                             prover['cred_def'], None)
     print(prover["did"])
     print(prover["link_secret_id"])
-    print(prover1["gender_code"])
+    print(params["gender_code"])
     return prover["did"],prover["link_secret_id"]
 
 def main():
