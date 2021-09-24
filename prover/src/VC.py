@@ -4,7 +4,7 @@ from os import error
 import pprint
 import base64
 from indy import pool, ledger, wallet, did, anoncreds
-from indy.error import IndyError, ErrorCode
+from indy.error import IndyError, ErrorCode, errorcode_to_exception
 from samples.did import sdk,issuer
 from samples.schema import schema
 
@@ -15,14 +15,11 @@ def print_log(value_color="", value_noncolor=""):
     HEADER = '\033[92m'
     ENDC = '\033[0m'
     print(HEADER + value_color + ENDC + str(value_noncolor))
-
-parmas = {
-    "id" : "evan6825@naver.com",
-    "gender" : "female",
-    "phone": "01022126825",
-    "name" : "Jun"
-}
-
+    
+params = {
+        "id" : "evan6825@naver.com",
+        "did" : "Ca6yc7pHjXKqZEVAMwYuMv"
+        }
 
 async def VC1(params): #여기에는 데이터 값이 들어가는곳 22줄
     try:
@@ -45,9 +42,11 @@ async def VC1(params): #여기에는 데이터 값이 들어가는곳 22줄
             "wallet_credentials" : json.dumps({"key": params["id"]+'_key'}),
             "link_secret" : params["id"]
         }
-        
         await pool.set_protocol_version(PROTOCOL_VERSION)
-        prover['pool'] = await pool.open_pool_ledger(issuer['pool_name'], None)
+        try :
+            sdk['pool'] = await pool.open_pool_ledger(issuer['pool_name'], None)
+        except :
+            pass
         #prover의 지갑 생성
         # try:
         #     await wallet.create_wallet(prover["wallet_config"],prover['wallet_credentials'])
@@ -78,7 +77,7 @@ async def VC1(params): #여기에는 데이터 값이 들어가는곳 22줄
         prover['cred_offer'] = await anoncreds.issuer_create_credential_offer(issuer['wallet'],
                                                                             schema['cred_def_id']) # cred_def_id > schema 에서 cred_def_id
     
-        
+
         #prover['cred_def_id'] = json.dumps(schema['cred_def_id'])
         prover['cred_def'] = json.dumps(schema['cred_def'])
 
@@ -88,7 +87,6 @@ async def VC1(params): #여기에는 데이터 값이 들어가는곳 22줄
                                                         prover['cred_offer'],
                                                         prover['cred_def'],
                                                         prover['link_secret'])
-
 
         # mystring = prover1["name"]
         # mybytes = mystring.encode('utf-8')
@@ -116,7 +114,6 @@ async def VC1(params): #여기에는 데이터 값이 들어가는곳 22줄
                                                     prover['cred_offer'],
                                                     prover['cred_req'],
                                                     prover['cred_values'], None, None)
-        
         await anoncreds.prover_store_credential(prover['wallet'], None,
                                                 prover['cred_req_metadata'],
                                                 prover['cred'],
@@ -129,11 +126,17 @@ async def VC1(params): #여기에는 데이터 값이 들어가는곳 22줄
         print_log("VC에 성공했습니다")        
         await wallet.close_wallet(issuer['wallet'])
         await wallet.close_wallet(prover['wallet'])
-        await pool.close_pool_ledger(prover['pool'])  
+        
+        try:
+            await pool.close_pool_ledger(sdk['pool']) 
+        except :
+            pass
+
         return user_did
     except IndyError as e:
+        errors = {"did": False}
         print('Error occurred: %s' % e)
-
+        return errors
 def main(params):
     loop = asyncio.get_event_loop()
     loop.run_until_complete(VC1(params))

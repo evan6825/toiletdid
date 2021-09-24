@@ -29,7 +29,10 @@ async def VP1(params):
 
 
         await pool.set_protocol_version(PROTOCOL_VERSION)
-        sdk['pool'] = await pool.open_pool_ledger(sdk['pool_name'], None)
+        try :
+            sdk['pool'] = await pool.open_pool_ledger(sdk['pool_name'], None)
+        except :
+            pass
         prover['wallet'] = await wallet.open_wallet(prover['wallet_config'], prover['wallet_credentials'])
 
 
@@ -90,7 +93,10 @@ async def VP1(params):
         #                                             revoc_ref_defs_json, revoc_regs_json)
         print_log("VP을 생성했습니다.")
         await wallet.close_wallet(prover['wallet'])
-        await pool.close_pool_ledger(sdk['pool'])  
+        try:
+            await pool.close_pool_ledger(sdk['pool']) 
+        except :
+            pass  
         return proof
     except IndyError as e:
         print_log('Error occurred: %s' % e)
