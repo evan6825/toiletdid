@@ -13,7 +13,10 @@ def print_log(value_color="", value_noncolor=""):
     HEADER = '\033[92m'
     ENDC = '\033[0m'
     print(HEADER + value_color + ENDC + str(value_noncolor))
-
+params = {
+    "id" : "evan1@naver.com",
+    "did" : "A8dqdpGioXnEFYbBZoYVKs"
+}
 async def VP1(params):
 
     try:
@@ -24,14 +27,20 @@ async def VP1(params):
             "did" : params["did"]
         }
 
-
-        await pool.set_protocol_version(PROTOCOL_VERSION)
+        print_log("1")
+        
         try :
-            prover['pool'] = await pool.open_pool_ledger(sdk['pool_name'], None)
+            await pool.set_protocol_version(PROTOCOL_VERSION)
+            sdk['pool'] = await pool.open_pool_ledger(sdk['pool_name'], None)
         except :
             pass
+        print_log("1")
+
         prover['wallet'] = await wallet.open_wallet(prover['wallet_config'], prover['wallet_credentials'])
 
+
+
+        print_log("1")
 
         nonce = await anoncreds.generate_nonce()
         sdk['proof_req'] = json.dumps({
@@ -49,11 +58,11 @@ async def VP1(params):
 
         prover["search_handle"] = \
             await anoncreds.prover_search_credentials_for_proof_req(prover['wallet'],prover["proof_req"],None)
-
+        print_log("1")
         creds_for_attr1 = await anoncreds.prover_fetch_credentials_for_proof_req(prover['search_handle'],
                                                                                 'attr1_referent', 10)
         prover['cred_for_attr1']= json.loads(creds_for_attr1)[0]['cred_info']
-
+        print_log("1")
         creds_for_predicate1 = await anoncreds.prover_fetch_credentials_for_proof_req(prover['search_handle'],
                                                                                     'predicate1_referent', 10)
         prover['cred_for_predicate1'] = json.loads(creds_for_predicate1)[0]['cred_info']
@@ -95,8 +104,9 @@ async def VP1(params):
         except :
             pass  
         return proof
-    except IndyError as e:
-        print_log('Error occurred: %s' % e)
+    except:
+        await wallet.close_wallet(prover['wallet'])
+        return {'did': 'asd'}
 
 
 

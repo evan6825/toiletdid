@@ -15,7 +15,7 @@ def print_log(value_color="", value_noncolor=""):
     HEADER = '\033[92m'
     ENDC = '\033[0m'
     print(HEADER + value_color + ENDC + str(value_noncolor))
-    
+
 params = {
         "id" : "evan6825@naver.com",
         "did" : "Ca6yc7pHjXKqZEVAMwYuMv"
@@ -124,13 +124,7 @@ async def VC1(params): #여기에는 데이터 값이 들어가는곳 22줄
         
         user_did = {"did": prover["did"]}
         print_log("VC에 성공했습니다")        
-        await wallet.close_wallet(issuer['wallet'])
-        await wallet.close_wallet(prover['wallet'])
-        
-        try:
-            await pool.close_pool_ledger(sdk['pool']) 
-        except :
-            pass
+
 
         return user_did
     except IndyError as e:

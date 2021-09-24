@@ -98,8 +98,9 @@ async def VP1(params):
         except :
             pass  
         return proof
-    except IndyError as e:
-        print_log('Error occurred: %s' % e)
+    except:
+        await wallet.close_wallet(prover['wallet'])
+        return {'did': 'asd'}
 
 
 
