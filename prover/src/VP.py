@@ -33,7 +33,6 @@ async def VP1(params):
 
         await pool.set_protocol_version(PROTOCOL_VERSION)
         sdk['pool'] = await pool.open_pool_ledger(sdk['pool_name'], None)
-        sdk['wallet'] = await wallet.open_wallet(sdk['wallet_config'], sdk['wallet_credentials'])
         prover['wallet'] = await wallet.open_wallet(prover['wallet_config'], prover['wallet_credentials'])
 
 
@@ -93,6 +92,8 @@ async def VP1(params):
         # assert await anoncreds.verifier_verify_proof(sdk['proof_req'], proof, schemas_json, cred_defs_json,
         #                                             revoc_ref_defs_json, revoc_regs_json)
         print_log("VP을 생성했습니다.")
+        await wallet.close_wallet(prover['wallet'])
+        await pool.close_pool_ledger(prover['pool'])  
         return proof
     except IndyError as e:
         print_log('Error occurred: %s' % e)

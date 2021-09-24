@@ -1,5 +1,6 @@
 import asyncio
 import json
+from os import error
 import pprint
 import base64
 from indy import pool, ledger, wallet, did, anoncreds
@@ -15,8 +16,16 @@ def print_log(value_color="", value_noncolor=""):
     ENDC = '\033[0m'
     print(HEADER + value_color + ENDC + str(value_noncolor))
 
+parmas = {
+    "id" : "evan6825@naver.com",
+    "gender" : "male",
+    "phone": "01022126825",
+    "name" : "Jun"
+}
+
+
 async def VC1(params): #여기에는 데이터 값이 들어가는곳 22줄
-    try:
+    # try:
         #prover1 = params
         # prover = {
         #     "wallet_config" :  json.dumps({"id": prover1["id"]}),
@@ -43,10 +52,12 @@ async def VC1(params): #여기에는 데이터 값이 들어가는곳 22줄
         # try:
         #     await wallet.create_wallet(prover["wallet_config"],prover['wallet_credentials'])
         # except IndyError as err:
-        #     if err.error_code == ErrorCode.WalletAlreadyExistsError:
+        #     if err.error_code == ErrorCode.WalletAlreadyExistsError:ㄴ
         #         print("지갑이 이미 생성 되어있습니다.")
-        await wallet.create_wallet(prover["wallet_config"],prover['wallet_credentials'])
-        
+        try:
+            await wallet.create_wallet(prover["wallet_config"],prover['wallet_credentials'])
+        except :
+            return print("이미 생성된 지갑입니다.")
         #prover의 지갑 접근
         issuer['wallet'] = await wallet.open_wallet(issuer['wallet_config'], issuer['wallet_credentials'])
         prover['wallet'] = await wallet.open_wallet(prover['wallet_config'], prover['wallet_credentials'])
@@ -115,17 +126,20 @@ async def VC1(params): #여기에는 데이터 값이 들어가는곳 22줄
         print(params["gender_code"])
         
         user_did = {"did": prover["did"]}
-        print_log("VC에 성공했습니다")
+        print_log("VC에 성공했습니다")        
+        await wallet.close_wallet(issuer['wallet'])
+        await wallet.close_wallet(prover['wallet'])
+        await pool.close_pool_ledger(prover['pool'])  
         return user_did
-    except IndyError as e:
-        print('Error occurred: %s' % e)
+    # except IndyError as e:
+    #     print('Error occurred: %s' % e)
 
-def main():
+def main(params):
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(VC1())
+    loop.run_until_complete(VC1(params))
     loop.close()
 
 
 
 if __name__ == '__main__':
-    main()
+    main(parmas)

@@ -17,7 +17,6 @@ def main():
 
 @app.route('/VC', methods = ["POST"])
 async def user_VC():
-   print("test1")
    if request.is_json :
       params = request.get_json() #서버에서 보내준 회원의정보
    a =  await VC1.VC1(params)
