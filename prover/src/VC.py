@@ -18,14 +18,14 @@ def print_log(value_color="", value_noncolor=""):
 
 parmas = {
     "id" : "evan6825@naver.com",
-    "gender" : "male",
+    "gender" : "female",
     "phone": "01022126825",
     "name" : "Jun"
 }
 
 
 async def VC1(params): #여기에는 데이터 값이 들어가는곳 22줄
-    # try:
+    try:
         #prover1 = params
         # prover = {
         #     "wallet_config" :  json.dumps({"id": prover1["id"]}),
@@ -131,8 +131,8 @@ async def VC1(params): #여기에는 데이터 값이 들어가는곳 22줄
         await wallet.close_wallet(prover['wallet'])
         await pool.close_pool_ledger(prover['pool'])  
         return user_did
-    # except IndyError as e:
-    #     print('Error occurred: %s' % e)
+    except IndyError as e:
+        print('Error occurred: %s' % e)
 
 def main(params):
     loop = asyncio.get_event_loop()

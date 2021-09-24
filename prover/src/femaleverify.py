@@ -4,7 +4,7 @@ import pprint
 
 from indy import pool, ledger, wallet, did, anoncreds
 from indy.error import IndyError, ErrorCode
-from samples.did import sdk,issuer
+# from samples.verfiy import params
 from samples.schema import schema, proof_schema
 from utils import get_pool_genesis_txn_path, PROTOCOL_VERSION
 # from samples.verfiy import params
@@ -14,6 +14,7 @@ def print_log(value_color="", value_noncolor=""):
     HEADER = '\033[92m'
     ENDC = '\033[0m'
     print(HEADER + value_color + ENDC + str(value_noncolor))
+
 
 
 async def verify(params):
@@ -26,7 +27,7 @@ async def verify(params):
                 'attr1_referent': {'name': 'name'}
             },
             'requested_predicates': {
-                'predicate1_referent': {'name': 'gender', 'p_type': '>=', 'p_value': 101}
+                'predicate1_referent': {'name': 'gender', 'p_type': '<', 'p_value': 100}
             }
         })
 

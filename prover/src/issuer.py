@@ -1,7 +1,9 @@
 
 import VC as VC1
-import VP as VP1
-import verify as verify1
+import maleVP as maleVP
+import femaleVP as femaleVP
+import maleverify as maleverify
+import femaleverify as femaleverify
 
 
 from flask import Flask, request
@@ -23,21 +25,36 @@ async def user_VC():
    return a
 
 
-@app.route('/VP', methods = ["POST"])
-async def user_VP():
+@app.route('/VP1', methods = ["POST"])
+async def male_VP():
    if request.is_json:
     params = request.get_json()
-   a = await VP1.VP1(params)
+   a = await maleVP.VP1(params)
+   return a
+
+
+@app.route('/VP2', methods = ["POST"])
+async def female_VP():
+   if request.is_json:
+    params = request.get_json()
+   a = await femaleVP.VP1(params)
    return a
 
 
 @app.route('/verify1', methods = ["POST"])
-async def verify_male():
+async def male_verify():
    if request.is_json:
     params = request.get_json()
-   a = await verify1.verify(params)
+   a = await maleverify.verify(params)
    return a
 
+
+@app.route('/verify2', methods = ["POST"])
+async def female_verify():
+   if request.is_json:
+    params = request.get_json()
+   a = await femaleverify.verify(params)
+   return a
 
 
 

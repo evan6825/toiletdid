@@ -7,13 +7,10 @@ from indy.error import IndyError, ErrorCode
 from samples.did import sdk,issuer
 from samples.schema import schema, proof_schema
 from utils import get_pool_genesis_txn_path, PROTOCOL_VERSION
-# params = {
-#         "id" : "evan12@naver.com",
-#         "gender" : "male",
-#         "phone": "1022126825",
-#         "name" : "junhong",
-#         "did" : "GmeAZQtm3Z6Zk9FsuiQAu3"
-#         }
+params = {
+        "id" : "evan6825@naver.com",
+        "did" : "Ca6yc7pHjXKqZEVAMwYuMv"
+        }
 def print_log(value_color="", value_noncolor=""):
     """set the colors for text."""
     HEADER = '\033[92m'
@@ -93,18 +90,18 @@ async def VP1(params):
         #                                             revoc_ref_defs_json, revoc_regs_json)
         print_log("VP을 생성했습니다.")
         await wallet.close_wallet(prover['wallet'])
-        await pool.close_pool_ledger(prover['pool'])  
+        await pool.close_pool_ledger(sdk['pool'])  
         return proof
     except IndyError as e:
         print_log('Error occurred: %s' % e)
 
 
 
-def main():
+def main(params):
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(VP1())
+    loop.run_until_complete(VP1(params))
     loop.close()
 
 
 if __name__ == '__main__':
-    main()
+    main(params)
