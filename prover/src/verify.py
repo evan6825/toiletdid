@@ -52,7 +52,7 @@ async def verify(params):
         revoc_ref_defs_json = "{}"
         revoc_regs_json = "{}"
 
-        await anoncreds.verifier_verify_proof(proof, params, schemas_json, cred_defs_json,
+        await anoncreds.verifier_verify_proof(proof, params["vp"], schemas_json, cred_defs_json,
                                                     revoc_ref_defs_json, revoc_regs_json)                                                           
         result = {"message" : True}
         print_log("VP검증에 성공했습니다.")

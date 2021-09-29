@@ -2,7 +2,7 @@
 import VC as VC1
 import maleVP as maleVP
 import femaleVP as femaleVP
-import verify as verify
+import verify as verify1
 
 
 from flask import Flask, request
@@ -44,7 +44,7 @@ async def female_VP():
 async def verify():
    if request.is_json:
     params = request.get_json()
-   a = await verify.verify(params)
+   a = await verify1.verify(params)
    return a
 
 
