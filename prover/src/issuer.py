@@ -2,8 +2,8 @@
 import VC as VC1
 import maleVP as maleVP
 import femaleVP as femaleVP
-import verify as verify1
-
+import maleverify as verify1
+import femaleverify as verify2
 
 from flask import Flask, request
 
@@ -43,8 +43,11 @@ async def female_VP():
 @app.route('/verify', methods = ["POST"])
 async def verify():
    if request.is_json:
-    params = request.get_json()
-   a = await verify1.verify(params)
+      params = request.get_json()
+      if params["gender"] == "male" :
+         a = await verify1.verify(params)
+      elif params["gender"] == "female" :
+         a = await verify2.verify(params)
    return a
 
 

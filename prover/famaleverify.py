@@ -4,10 +4,8 @@ import pprint
 
 from indy import pool, ledger, wallet, did, anoncreds
 from indy.error import IndyError, ErrorCode
-# from samples.verfiy import params
 from samples.schema import schema, proof_schema
 from utils import get_pool_genesis_txn_path, PROTOCOL_VERSION
-# from samples.verfiy import params
 
 def print_log(value_color="", value_noncolor=""):
     """set the colors for text."""
@@ -19,20 +17,7 @@ def print_log(value_color="", value_noncolor=""):
 
 async def verify(params):
     try:
-        if params["gender"] == "male" :
-            proof= json.dumps({
-                'nonce': "123123",
-                'name': 'proof_req_1',
-                'version': '0.1',
-                'requested_attributes': {
-                    'attr1_referent': {'name': 'name'}
-                },
-                'requested_predicates': {
-                    'predicate1_referent': {'name': 'gender', 'p_type': '>', 'p_value': 100}
-                }
-            })
-        elif params["gender"] == "female" : 
-            proof= json.dumps({
+        proof= json.dumps({
                 'nonce': "123123",
                 'name': 'proof_req_1',
                 'version': '0.1',
@@ -42,17 +27,13 @@ async def verify(params):
                 'requested_predicates': {
                     'predicate1_referent': {'name': 'gender', 'p_type': '<', 'p_value': 100}
                 }
-            })            
-        else :
-            result = {"message" : False}
-            print_log("성별에 오류가나 VP검증에 실패했습니다.")
-            return result
+            })        
         schemas_json = json.dumps({schema['schema_id']: json.loads(schema['schema'])})
         cred_defs_json = json.dumps({proof_schema['cred_def_id']: json.loads(proof_schema['cred_def'])}) 
         revoc_ref_defs_json = "{}"
         revoc_regs_json = "{}"
 
-        await anoncreds.verifier_verify_proof(proof, params["vp"], schemas_json, cred_defs_json,
+        await anoncreds.verifier_verify_proof(proof, params, schemas_json, cred_defs_json,
                                                     revoc_ref_defs_json, revoc_regs_json)                                                           
         result = {"message" : True}
         print_log("VP검증에 성공했습니다.")
